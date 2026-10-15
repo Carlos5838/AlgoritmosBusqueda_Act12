@@ -1,11 +1,7 @@
-# Actividad 12 — Búsqueda Voraz y A*
-
-## Bloque de identificación
-
-**Nombre:** ______________________________  
-**No. de cuenta:** _______________________  
-**Materia:** _____________________________  
-**Actividad:** Actividad 12 — Implementación de búsqueda voraz y búsqueda A*  
+**Nombre:** Carlos Andrés Hernández Díaz  
+**No. de cuenta:** 200711  
+**Materia:** Lenguajes de Computación
+**Actividad:** Actividad 12 — Algoritmos de búsqueda informada (heurísticos)
 
 ## Descripción
 
@@ -26,15 +22,6 @@ Por tanto, los límites por defecto son 8, 20 y 40 para los grafos de 10, 25 y 5
 
 ## Instalación y ejecución
 
-```bash
-python -m venv venv
-```
-
-En Windows:
-
-```bash
-venv\Scripts\activate
-pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
