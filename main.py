@@ -67,3 +67,53 @@ def search_star(data: SearchRequest):
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+# ===== Endpoints adicionales =====
+from models_extra import (
+    WeightedGraphRequest, TSPRequest, AlgorithmResponse, SyntheticGraphRequest
+)
+from dijkstra import dijkstra
+from tsp import traveling_salesman
+from tsp_greedy import traveling_salesman_greedy
+from synthetic_graph import generate_synthetic_graph
+
+def validate_graph_nodes(graph, *nodes):
+    for node in nodes:
+        if node not in graph:
+            raise HTTPException(status_code=400, detail=f"El nodo '{node}' no existe en el grafo.")
+    for u, edges in graph.items():
+        for v, weight in edges:
+            if v not in graph:
+                raise HTTPException(status_code=400, detail=f"El nodo destino '{v}' no existe.")
+            if weight < 0:
+                raise HTTPException(status_code=400, detail="No se permiten pesos negativos.")
+
+@app.post("/search/dijkstra", response_model=AlgorithmResponse)
+def search_dijkstra(data: WeightedGraphRequest):
+    validate_graph_nodes(data.graph, data.origin, data.destination)
+    return dijkstra(data.graph, data.origin, data.destination)
+
+@app.post("/search/tsp", response_model=AlgorithmResponse)
+def search_tsp(data: TSPRequest):
+    validate_graph_nodes(data.graph, data.origin)
+    if len(data.graph) > 10:
+        raise HTTPException(
+            status_code=400,
+            detail="El TSP exacto por fuerza bruta se limita a 10 nodos por su complejidad factorial. Usa /search/tsp-greedy para grafos mayores."
+        )
+    return traveling_salesman(data.graph, data.origin)
+
+@app.post("/search/tsp-greedy", response_model=AlgorithmResponse)
+def search_tsp_greedy(data: TSPRequest):
+    validate_graph_nodes(data.graph, data.origin)
+    return traveling_salesman_greedy(data.graph, data.origin)
+
+@app.post("/graphs/synthetic")
+def synthetic_graph(data: SyntheticGraphRequest):
+    if data.max_weight < data.min_weight:
+        raise HTTPException(status_code=400, detail="max_weight debe ser >= min_weight.")
+    graph = generate_synthetic_graph(
+        data.nodes, data.min_weight, data.max_weight, data.seed
+    )
+    return {"total_nodos": data.nodes, "graph": graph}
